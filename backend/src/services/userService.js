@@ -8,10 +8,24 @@ const isValidEmail = (email) => {
   return emailRegex.test(email);
 };
 
+// Password strength validation function
+const isValidPassword = (password) => {
+  // Password must be at least 6 characters long
+  if (password.length < 6) {
+    return false;
+  }
+  return true;
+};
+
 const registerUser = async (name, email, password) => {
   // Validate email format
   if (!isValidEmail(email)) {
     throw new Error("Invalid email format");
+  }
+
+  // Validate password strength
+  if (!isValidPassword(password)) {
+    throw new Error("Password must be at least 6 characters long");
   }
 
   const existingUser = await userModel.findByEmail(email);

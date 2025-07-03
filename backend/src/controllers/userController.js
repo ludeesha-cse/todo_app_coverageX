@@ -11,7 +11,9 @@ const signup = async (req, res) => {
     res.status(201).json({ token });
   } catch (err) {
     const code =
-      err.message.includes("already") || err.message.includes("Invalid email")
+      err.message.includes("already") ||
+      err.message.includes("Invalid email") ||
+      err.message.includes("Password must be")
         ? 400
         : 500;
     res.status(code).json({ message: err.message || "Signup failed" });
