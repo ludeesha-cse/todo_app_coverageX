@@ -8,11 +8,20 @@ const createTask = async ({ userId, title, description }) => {
   return res.insertId;
 };
 
-//get recent 5 incomplete tasks for a user 
+//get recent 5 incomplete tasks for a user
 const getIncompleteTasks = async (userId) => {
   const [rows] = await db.execute(
     "SELECT id, title, description, completed, created_at FROM task WHERE user_id = ? AND completed = FALSE ORDER BY created_at DESC LIMIT 5",
     [userId]
+  );
+  return rows;
+};
+
+//get a specific task by ID for a user
+const getTaskById = async (taskId, userId) => {
+  const [rows] = await db.execute(
+    "SELECT id, title, description, completed, created_at FROM task WHERE id = ? AND user_id = ?",
+    [taskId, userId]
   );
   return rows;
 };
@@ -28,5 +37,6 @@ const markAsDone = async (taskId, userId) => {
 module.exports = {
   createTask,
   getIncompleteTasks,
+  getTaskById,
   markAsDone,
 };

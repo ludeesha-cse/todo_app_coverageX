@@ -39,7 +39,11 @@ const Tasks = () => {
   const handleAddTask = async (title: string, description: string) => {
     try {
       const newTask = await apiService.createTask({ title, description });
-      setTasks((prev) => [newTask, ...prev]);
+      setTasks((prev) => {
+        const updatedTasks = [newTask, ...prev];
+        // Keep only the most recent 5 tasks
+        return updatedTasks.slice(0, 5);
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create task");
     }
@@ -48,7 +52,20 @@ const Tasks = () => {
   const handleDone = async (id: number) => {
     try {
       await apiService.markTaskAsDone(id);
+
+      // Remove the completed task immediately
       setTasks((prev) => prev.filter((task) => task.id !== id));
+
+      // Only fetch new tasks if we might need replacements
+      // Do this in a non-blocking way to avoid multiple loading states
+      apiService
+        .getTasks()
+        .then((freshTasks) => {
+          setTasks(freshTasks);
+        })
+        .catch((fetchError) => {
+          console.error("Failed to fetch updated tasks:", fetchError);
+        });
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Failed to mark task as done"
@@ -65,6 +82,9 @@ const Tasks = () => {
       <div className="mb-6">
         <h2 className="text-2xl font-bold mb-2">Welcome, {user?.name}!</h2>
         <p className="text-gray-600">Manage your tasks efficiently</p>
+        <p className="text-sm text-gray-500 mt-1">
+          Showing your 5 most recent tasks
+        </p>
       </div>
 
       {error && (

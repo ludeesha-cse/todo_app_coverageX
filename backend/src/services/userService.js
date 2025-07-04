@@ -42,7 +42,7 @@ const registerUser = async (name, email, password) => {
 
   // Get user data without password
   const user = await userModel.findById(userId);
-  
+
   return { token, user };
 };
 
@@ -61,9 +61,9 @@ const authenticateUser = async (email, password) => {
   const userData = {
     id: user.id,
     name: user.name,
-    email: user.email
+    email: user.email,
   };
-  
+
   return { token, user: userData };
 };
 

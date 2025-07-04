@@ -7,8 +7,8 @@ const createTask = async (req, res) => {
       return res.status(400).json({ message: "Title is required" });
     }
 
-    const taskId = await taskService.createTask(req.userId, title, description);
-    res.status(201).json({ taskId });
+    const task = await taskService.createTask(req.userId, title, description);
+    res.status(201).json(task);
   } catch (err) {
     console.error("Create Task Error:", err);
     res.status(500).json({ message: "Failed to create task" });
