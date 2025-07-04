@@ -39,7 +39,11 @@ const registerUser = async (name, email, password) => {
   const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
     expiresIn: "1d",
   });
-  return token;
+
+  // Get user data without password
+  const user = await userModel.findById(userId);
+  
+  return { token, user };
 };
 
 const authenticateUser = async (email, password) => {
@@ -52,7 +56,15 @@ const authenticateUser = async (email, password) => {
   const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
     expiresIn: "1d",
   });
-  return token;
+
+  // Return user data without password
+  const userData = {
+    id: user.id,
+    name: user.name,
+    email: user.email
+  };
+  
+  return { token, user: userData };
 };
 
 module.exports = {

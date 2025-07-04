@@ -1,23 +1,78 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from "react";
+import type { ReactNode } from "react";
+import { apiService } from "./api";
+import type { User, LoginCredentials, SignupCredentials } from "./api";
 
-interface User {
-  name: string;
-  email: string;
+interface AuthContextType {
+  user: User | null;
+  isLoading: boolean;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  signup: (credentials: SignupCredentials) => Promise<void>;
+  logout: () => void;
+  isAuthenticated: boolean;
 }
 
-const AuthContext = createContext<{ user: User | null; login: (user: User) => void; logout: () => void }>({
+const AuthContext = createContext<AuthContextType>({
   user: null,
-  login: () => {},
+  isLoading: true,
+  login: async () => {},
+  signup: async () => {},
   logout: () => {},
+  isAuthenticated: false,
 });
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const login = (user: User) => setUser(user);
-  const logout = () => setUser(null);
+  useEffect(() => {
+    // Check if user is already logged in on app start
+    const storedUser = apiService.getStoredUser();
+    if (storedUser && apiService.isAuthenticated()) {
+      setUser(storedUser);
+    }
+    setIsLoading(false);
+  }, []);
 
-  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>;
+  const login = async (credentials: LoginCredentials) => {
+    try {
+      const response = await apiService.login(credentials);
+      setUser(response.user);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const signup = async (credentials: SignupCredentials) => {
+    try {
+      const response = await apiService.signup(credentials);
+      setUser(response.user);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const logout = () => {
+    apiService.logout();
+    setUser(null);
+  };
+
+  const value: AuthContextType = {
+    user,
+    isLoading,
+    login,
+    signup,
+    logout,
+    isAuthenticated: !!user,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};

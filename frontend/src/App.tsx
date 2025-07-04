@@ -1,21 +1,53 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Tasks from './pages/Tasks';
-import SignIn from './pages/Sign-in';
-import SignUp from './pages/Sign-up';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { AuthProvider, useAuth } from "./services/auth";
+import Navbar from "./components/Navbar";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Tasks from "./pages/Tasks";
+import SignIn from "./pages/Sign-in";
+import SignUp from "./pages/Sign-up";
 
-function App() {
+const AppContent = () => {
+  const { isAuthenticated } = useAuth();
+
   return (
-    <Router>
+    <>
       <Navbar />
       <div className="container mx-auto p-4">
         <Routes>
-          <Route path="/signin" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/" element={<Tasks />} />
+          <Route
+            path="/signin"
+            element={isAuthenticated ? <Navigate to="/" replace /> : <SignIn />}
+          />
+          <Route
+            path="/signup"
+            element={isAuthenticated ? <Navigate to="/" replace /> : <SignUp />}
+          />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Tasks />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
-    </Router>
+    </>
+  );
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
   );
 }
 

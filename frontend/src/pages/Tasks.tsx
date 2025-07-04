@@ -1,33 +1,102 @@
-import React, { useState } from 'react';
-import TaskCard from '../components/TaskCard';
-import TaskForm from '../components/TaskForm';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import TaskCard from "../components/TaskCard";
+import TaskForm from "../components/TaskForm";
+import { useAuth } from "../services/auth";
+import { apiService } from "../services/api";
+import type { Task } from "../services/api";
 
 const Tasks = () => {
-  const [tasks, setTasks] = useState([
-    { id: 1, title: 'Buy books', description: 'Buy books for the next school year' },
-    { id: 2, title: 'Clean home', description: 'Need to clean the bed room' },
-    { id: 3, title: 'Takehome assignment', description: 'Finish the mid-term assignment' },
-    { id: 4, title: 'Play Cricket', description: 'Plan the soft ball cricket match on next Sunday' },
-    { id: 5, title: 'Help Saman', description: 'Saman need help with his software project' },
-  ]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const handleAddTask = (title: string, description: string) => {
-    setTasks([...tasks, { id: Date.now(), title, description }]);
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/signin");
+      return;
+    }
+
+    loadTasks();
+  }, [isAuthenticated, navigate]);
+
+  const loadTasks = async () => {
+    try {
+      setIsLoading(true);
+      const fetchedTasks = await apiService.getTasks();
+      setTasks(fetchedTasks);
+      setError("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load tasks");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDone = (id: number) => {
-    setTasks(tasks.filter(task => task.id !== id));
+  const handleAddTask = async (title: string, description: string) => {
+    try {
+      const newTask = await apiService.createTask({ title, description });
+      setTasks((prev) => [newTask, ...prev]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to create task");
+    }
   };
+
+  const handleDone = async (id: number) => {
+    try {
+      await apiService.markTaskAsDone(id);
+      setTasks((prev) => prev.filter((task) => task.id !== id));
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to mark task as done"
+      );
+    }
+  };
+
+  if (!isAuthenticated) {
+    return null; // Will redirect to signin
+  }
 
   return (
     <div className="max-w-2xl mx-auto mt-10">
-      <h2 className="text-2xl mb-4">Tasks</h2>
-      <TaskForm onAddTask={handleAddTask} />
-      <div className="space-y-4">
-        {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} onDone={() => handleDone(task.id)} />
-        ))}
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold mb-2">Welcome, {user?.name}!</h2>
+        <p className="text-gray-600">Manage your tasks efficiently</p>
       </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          {error}
+        </div>
+      )}
+
+      <TaskForm onAddTask={handleAddTask} />
+
+      {isLoading ? (
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          <p className="mt-2 text-gray-600">Loading tasks...</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {tasks.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>No tasks yet. Create your first task above!</p>
+            </div>
+          ) : (
+            tasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                onDone={() => handleDone(task.id)}
+              />
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 };
