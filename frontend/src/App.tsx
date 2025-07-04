@@ -17,7 +17,7 @@ const AppContent = () => {
   return (
     <>
       <Navbar />
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-4 pt-20">
         <Routes>
           <Route
             path="/signin"
