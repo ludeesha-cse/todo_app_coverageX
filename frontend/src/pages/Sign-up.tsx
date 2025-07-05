@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../services/auth";
+import { validatePassword } from "../utils/helpers";
 
 const SignUp = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const { signup } = useAuth();
@@ -15,7 +17,16 @@ const SignUp = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setPasswordErrors([]);
     setIsLoading(true);
+
+    // Validate password
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      setPasswordErrors(passwordValidation.errors);
+      setIsLoading(false);
+      return;
+    }
 
     try {
       await signup({ name, email, password });
@@ -72,6 +83,38 @@ const SignUp = () => {
                   />
                 </svg>
                 {error}
+              </div>
+            </div>
+          )}
+
+          {passwordErrors.length > 0 && (
+            <div className="mb-6 p-4 bg-red-50/80 backdrop-blur-sm border border-red-200 text-red-700 rounded-xl">
+              <div className="flex items-start gap-3">
+                <svg
+                  className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z"
+                  />
+                </svg>
+                <div>
+                  <p className="font-semibold mb-2">
+                    Password requirements not met:
+                  </p>
+                  <ul className="list-disc list-inside space-y-1">
+                    {passwordErrors.map((error, index) => (
+                      <li key={index} className="text-sm">
+                        {error}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
           )}
@@ -152,13 +195,19 @@ const SignUp = () => {
                 type="password"
                 placeholder="Create a strong password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (passwordErrors.length > 0) {
+                    setPasswordErrors([]);
+                  }
+                }}
                 className="w-full p-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all duration-200 bg-gray-50/50 hover:bg-white"
                 required
                 minLength={6}
               />
               <p className="text-xs text-gray-500">
-                Password must be at least 6 characters long
+                Password must contain: at least 6 characters, one uppercase
+                letter, one lowercase letter, and one number
               </p>
             </div>
 
