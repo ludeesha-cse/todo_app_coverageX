@@ -1,0 +1,24 @@
+# Node.js
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Vite / React
+dist
+.vite
+*.local
+
+# System
+.DS_Store
+.env
+.env.local
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
