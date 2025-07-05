@@ -110,7 +110,7 @@ npm run dev
 - **Frontend:** http://localhost:5173
 - **Backend API:** http://localhost:5000
 
-## You're Done! 🎉
+## You're Done!
 
 You can now:
 

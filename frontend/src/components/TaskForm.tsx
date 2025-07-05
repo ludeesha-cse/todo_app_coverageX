@@ -17,7 +17,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ onAddTask }) => {
         setNewTask({ title: "", description: "" });
       } catch (error) {
         // Error handling is done in the parent component
-        console.error("Failed to add task:", error);
       } finally {
         setIsSubmitting(false);
       }

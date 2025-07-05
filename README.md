@@ -4,15 +4,15 @@ A modern, full-stack Todo application built with React (TypeScript) frontend and
 
 ## Features
 
-- ✅ User Authentication (Sign up, Sign in, Logout)
-- ✅ Create, Read, and Mark Tasks as Done
-- ✅ Protected Routes
-- ✅ Responsive Design with Tailwind CSS
-- ✅ JWT Token Authentication
-- ✅ MySQL Database Integration
-- ✅ RESTful API
-- ✅ Error Handling
-- ✅ Loading States
+- User Authentication (Sign up, Sign in, Logout)
+- Create, Read, and Mark Tasks as Done
+- Protected Routes
+- Responsive Design with Tailwind CSS
+- JWT Token Authentication
+- MySQL Database Integration
+- RESTful API
+- Error Handling
+- Loading States
 
 ## Tech Stack
 
@@ -63,11 +63,21 @@ ToDoApp/
 
 ### Prerequisites
 
+**Option 1: Docker (Recommended)**
+
+- Docker and Docker Compose
+
+**Option 2: Manual Setup**
+
 - Node.js (v18+ recommended)
 - MySQL Server
 - npm or yarn
 
 ### 1. Clone and Install Dependencies
+
+**For Docker setup:** Only cloning is required - dependencies are handled automatically.
+
+**For manual setup:**
 
 ```bash
 # Clone the repository
@@ -88,6 +98,10 @@ cd ..
 
 ### 2. Database Setup
 
+**For Docker setup:** Database is automatically created and initialized - skip this section.
+
+**For manual setup:**
+
 1. Create a MySQL database
 2. Run the initialization script:
 
@@ -96,6 +110,10 @@ mysql -u your_username -p your_database < db/init.sql
 ```
 
 ### 3. Environment Configuration
+
+**For Docker setup:** Environment variables are pre-configured in docker-compose.yml - skip this section.
+
+**For manual setup:**
 
 #### Backend (.env in backend folder)
 
@@ -117,7 +135,52 @@ VITE_API_BASE_URL=http://localhost:5000
 
 ### 4. Running the Application
 
-#### Using Startup Scripts
+#### Option 1: Using Docker (Recommended)
+
+The easiest way to run the entire application is using Docker Compose, which will automatically set up the MySQL database, backend, and frontend services.
+
+**Prerequisites:**
+
+- Docker and Docker Compose installed on your system
+
+**Steps:**
+
+```bash
+# Clone the repository
+git clone <repository-url>
+cd ToDoApp
+
+# Start all services with Docker Compose
+docker-compose up --build
+
+# Or run in detached mode (background)
+docker-compose up -d --build
+```
+
+**What this does:**
+
+- Creates a MySQL database with the required schema
+- Builds and runs the backend API server
+- Builds and runs the frontend application
+- Sets up networking between all services
+
+**Access the application:**
+
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:5000
+- MySQL Database: localhost:3307 (if you need direct access)
+
+**Stop the application:**
+
+```bash
+# Stop all services
+docker-compose down
+
+# Stop and remove volumes (clears database data)
+docker-compose down -v
+```
+
+#### Option 2: Using Startup Scripts
 
 **Windows:**
 
@@ -142,7 +205,7 @@ chmod +x start-backend.sh start-frontend.sh
 ./start-frontend.sh
 ```
 
-#### Manual Start
+#### Option 3: Manual Start
 
 ```bash
 # Backend (in one terminal)
@@ -154,7 +217,7 @@ cd frontend
 npm run dev
 ```
 
-#### Production Mode
+#### Option 4: Production Mode
 
 ```bash
 # Build frontend
@@ -264,6 +327,24 @@ npm run test:coverage
 - `VITE_API_BASE_URL` - Backend API URL
 
 ## Troubleshooting
+
+### Docker Issues
+
+1. **Port Conflicts**
+
+   - Ensure ports 3000, 5000, and 3307 are not in use
+   - Use `docker-compose down` to stop existing containers
+   - Check running containers with `docker ps`
+
+2. **Build Failures**
+
+   - Clear Docker cache: `docker system prune -a`
+   - Rebuild without cache: `docker-compose build --no-cache`
+
+3. **Database Connection Issues**
+   - Wait for MySQL container to fully initialize (may take 30-60 seconds)
+   - Check logs: `docker-compose logs mysql`
+   - Restart services: `docker-compose restart`
 
 ### Common Issues
 

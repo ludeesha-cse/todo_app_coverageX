@@ -64,7 +64,7 @@ const Tasks = () => {
           setTasks(freshTasks);
         })
         .catch((fetchError) => {
-          console.error("Failed to fetch updated tasks:", fetchError);
+          // Silent error for background refresh
         });
     } catch (err) {
       setError(
