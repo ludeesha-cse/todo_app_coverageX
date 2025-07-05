@@ -364,14 +364,3 @@ npm run test:coverage
    - Check JWT secret configuration
    - Verify token expiration settings
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests
-5. Submit a pull request
-
-## License
-
-This project is licensed under the ISC License.
