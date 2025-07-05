@@ -12,9 +12,37 @@ const isValidEmail = (email) => {
 const isValidPassword = (password) => {
   // Password must be at least 6 characters long
   if (password.length < 6) {
-    return false;
+    return {
+      valid: false,
+      message: "Password must be at least 6 characters long",
+    };
   }
-  return true;
+
+  // Check for at least one lowercase letter
+  if (!/[a-z]/.test(password)) {
+    return {
+      valid: false,
+      message: "Password must contain at least one lowercase letter",
+    };
+  }
+
+  // Check for at least one uppercase letter
+  if (!/[A-Z]/.test(password)) {
+    return {
+      valid: false,
+      message: "Password must contain at least one uppercase letter",
+    };
+  }
+
+  // Check for at least one digit
+  if (!/\d/.test(password)) {
+    return {
+      valid: false,
+      message: "Password must contain at least one digit",
+    };
+  }
+
+  return { valid: true, message: "Password is valid" };
 };
 
 const registerUser = async (name, email, password) => {
@@ -24,8 +52,9 @@ const registerUser = async (name, email, password) => {
   }
 
   // Validate password strength
-  if (!isValidPassword(password)) {
-    throw new Error("Password must be at least 6 characters long");
+  const passwordValidation = isValidPassword(password);
+  if (!passwordValidation.valid) {
+    throw new Error(passwordValidation.message);
   }
 
   const existingUser = await userModel.findByEmail(email);
